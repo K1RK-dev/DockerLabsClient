@@ -1,6 +1,9 @@
-import './assets/main.css'
-
 import { createApp } from 'vue'
 import App from './App.vue'
+import vuetify from './plugins/vuetify' // Путь к вашему файлу vuetify.js
+import '@mdi/font/css/materialdesignicons.css'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.use(vuetify)
+app.mount('#app')
