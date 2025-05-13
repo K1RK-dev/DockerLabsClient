@@ -11,8 +11,16 @@
             <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" @click="login">Login</v-btn>
+            <v-btn color="primary" @click="login" :loading="isLoading">
+              Submit
+            </v-btn>
+            <v-btn color="primary" @click="goToRegister">
+              Register
+            </v-btn>
           </v-card-actions>
+          <v-alert v-if="error" type="error" dismissible>
+            {{ error }}
+          </v-alert>
         </v-card>
       </v-col>
     </v-row>
@@ -20,25 +28,50 @@
 </template>
 
 <script>
-import authService from '../../services/authService';
+import { useStore } from 'vuex';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
-  data() {
+  name: 'LoginForm',
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const username = ref('');
+    const password = ref('');
+
+    const isLoading = computed(() => store.getters['auth/isLoading']);
+    const error = computed(() => store.getters['auth/error']);
+
+    const login = async () => {
+      try {
+        await store.dispatch('auth/login', {
+          username: username.value,
+          password: password.value,
+        });
+        if (store.getters['auth/isLoggedIn']) {
+          router.push('/profile');
+        } else {
+          console.warn('Login failed');
+        }
+      } catch (err) {
+        console.error('Login failed', err);
+      }
+    };
+
+    const goToRegister = () => {
+      router.push('/register');
+    };
+
     return {
-      username: '',
-      password: ''
+      username,
+      password,
+      isLoading,
+      error,
+      login,
+      goToRegister
     };
   },
-  methods: {
-    async login() {
-      try {
-        await authService.login(this.username, this.password);
-        this.$router.push('/profile');
-      } catch (error) {
-        console.error('Login failed', error);
-        // TODO: Отобразить сообщение об ошибке пользователю (например, с помощью v-alert)
-      }
-    }
-  }
 };
 </script>

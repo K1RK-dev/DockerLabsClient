@@ -6,7 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/auth': {
-        target: 'http://localhost:5000', // Replace with your Flask API URL
+        target: 'http://localhost:5000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/auth/, '/auth'),
       }

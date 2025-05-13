@@ -4,14 +4,15 @@
       <v-col cols="12" sm="8" md="6">
         <v-card class="elevation-12">
           <v-toolbar color="primary" dark flat>
-            <v-toolbar-title>Register</v-toolbar-title>
+            <v-toolbar-title>Registration</v-toolbar-title>
           </v-toolbar>
           <v-card-text>
             <v-text-field v-model="username" label="Username" required></v-text-field>
             <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" @click="register">Register</v-btn>
+            <v-btn color="primary" @click="register">Submit</v-btn>
+            <v-btn color="primary" @click="goToLogin">Back to login</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -20,25 +21,40 @@
 </template>
 
 <script>
-import authService from '../../services/authService';
+import { useStore } from 'vuex';
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
-  data() {
-    return {
-      username: '',
-      password: ''
-    };
-  },
-  methods: {
-    async register() {
+  setup() {
+    const store = useStore();
+    const router = useRouter();
+
+    const username = ref('');
+    const password = ref('');
+
+    const register = async () => {
       try {
-        await authService.register(this.username, this.password);
-        this.$router.push('/login'); // Перенаправляем на страницу логина
+        await store.dispatch('auth/register', {
+          username: username.value,
+          password: password.value
+        });
+        router.push('/login');
       } catch (error) {
         console.error('Registration failed', error);
-        // TODO: Отобразить сообщение об ошибке пользователю
       }
-    }
+    };
+
+    const goToLogin = () => {
+      router.push('/login');
+    };
+
+    return {
+      username,
+      password,
+      register,
+      goToLogin
+    };
   }
 };
 </script>

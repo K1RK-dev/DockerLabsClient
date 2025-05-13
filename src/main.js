@@ -1,9 +1,14 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import vuetify from './plugins/vuetify' // Путь к вашему файлу vuetify.js
+import vuetify from './plugins/vuetify'
+import store from './store/index.js'
+import router from './router'
 import '@mdi/font/css/materialdesignicons.css'
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(vuetify)
-app.mount('#app')
+app.use(vuetify);
+app.use(router);
+app.use(store);
+
+app.mount('#app');
