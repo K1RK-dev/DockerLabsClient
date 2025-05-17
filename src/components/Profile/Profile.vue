@@ -1,85 +1,87 @@
 <template>
-  <v-container class="fill-height">
-    <v-row justify="center">
-      <v-col cols="12" sm="8" md="6">
-        <v-card class="elevation-12">
-          <v-toolbar color="primary" dark flat>
-            <v-toolbar-title>Welcome</v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn @click="logout">Logout</v-btn>
-          </v-toolbar>
-          <v-card-text>
-            <p class="text-gray-700 text-base">Hello, {{ username }}!</p>
-            <v-text-field v-model="containerId" label="Container ID"></v-text-field>
-            <v-btn @click="startTerminal" :disabled="!containerId">Start Terminal</v-btn>
-            <div id="terminal" ref="terminal"></div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-app>
+    <v-app-bar app color="primary" dark flat>
+      <v-toolbar :elevation="8">
+        <v-btn
+          text
+          @click="activeModule = 'labs'"
+          :class="{ 'module-active': activeModule === 'labs' }"
+        >
+          Labs
+        </v-btn>
+        <v-btn
+          text
+          @click="activeModule = 'students'"
+          :class="{ 'module-active': activeModule === 'students' }"
+        >
+          Students
+        </v-btn>
+        <v-btn
+          text
+          @click="activeModule = 'settings'"
+          :class="{ 'module-active': activeModule === 'settings' }"
+        >
+          Settings
+        </v-btn>
+        <v-btn
+          text
+          @click="activeModule = 'images'"
+          :class="{ 'module-active': activeModule === 'images' }"
+        >
+          Images
+        </v-btn>
+        <v-spacer></v-spacer>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props">{{ username }}</v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-btn text @click="logout">Logout</v-btn>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-toolbar>
+    </v-app-bar>
+
+    <v-main>
+      <v-container fluid class="fill-height">
+        <v-row>
+          <v-col cols="12">
+            <Labs v-if="activeModule === 'labs'" />
+            <Settings v-if="activeModule === 'settings'" />
+            <Students v-if="activeModule === 'students'" />
+            <Images v-if="activeModule === 'images'" />
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
-import { computed, ref, onMounted, onUnmounted } from 'vue';
-import { io } from 'socket.io-client';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
-import 'xterm/css/xterm.css';
+import { computed, ref } from 'vue';
+
+import Labs from './modules/Labs/LabsModule.vue';
+import Settings from './modules/Settings/SettingsModule.vue';
+import Students from './modules/Students/StudentsModule.vue';
+import Images from './modules/Images/ImagesModule.vue';
 
 export default {
   name: 'Profile',
+  components: {
+    Labs,
+    Settings,
+    Students,
+    Images,
+  },
   setup() {
     const store = useStore();
     const router = useRouter();
-
     const username = computed(() => store.getters['auth/user'] ? store.getters['auth/user'].username : '');
-    const containerId = ref('');
-    const terminal = ref(null);
-    const terminalElement = ref(null);
-    const socket = ref(null);
-
-    const startTerminal = () => {
-      if (!containerId.value) {
-        alert('Please enter a container ID.');
-        return;
-      }
-
-      terminal.value = new Terminal();
-      const fitAddon = new FitAddon();
-      terminal.value.loadAddon(fitAddon);
-
-      socket.value = io('http://localhost:5000');
-
-      socket.value.on('connect', () => {
-        console.log('Connected to WebSocket');
-        socket.value.emit('start_shell', containerId.value);
-      });
-
-      socket.value.on('terminal_output', (data) => {
-        terminal.value.write(data.output);
-      });
-
-      terminal.value.onData((data) => {
-        socket.value.emit('terminal_input', { container_id: containerId.value, input: data });
-      });
-
-      socket.value.on('disconnect', () => {
-        console.log('Disconnected from WebSocket');
-        terminal.value.write('\r\n***Disconnected from server***\r\n');
-      });
-    };
-
-    onMounted(() => {
-      if (terminal.value && terminalElement.value) {
-        terminal.value.open(terminalElement.value);
-        const fitAddon = new FitAddon();
-        terminal.value.loadAddon(fitAddon);
-        fitAddon.fit();
-      }
-    });
+    const activeModule = ref('labs');
 
     const logout = async () => {
       try {
@@ -90,33 +92,22 @@ export default {
       }
     };
 
-    onUnmounted(() => {
-      if (socket.value) {
-        socket.value.disconnect();
-      }
-      if (terminal.value) {
-        terminal.value.dispose();
-      }
-    });
-
     return {
       username,
       logout,
-      containerId,
-      terminal,
-      terminalElement,
-      startTerminal,
+      activeModule,
     };
-  }
+  },
 };
 </script>
 
 <style scoped>
-#terminal {
-  background-color: black;
-  color: white;
-  font-family: monospace;
-  font-size: 14px;
-  padding: 10px;
+.module-active {
+  font-weight: bold !important;
+  text-decoration: underline;
+}
+
+.v-main .v-container {
+  padding: 20px;
 }
 </style>

@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = '/auth';
+import axiosInstance from '../../plugins/axios.js'
 
 const state = {
   user: null,
@@ -26,11 +24,11 @@ const mutations = {
 };
 
 const actions = {
-  async login({ commit }, { username, password }) {
+  async login({ commit }, { username, password, apiUrl }) {
     commit('SET_LOADING', true);
     commit('CLEAR_ERROR');
     try {
-      const response = await axios.post(`${API_URL}/login`, {
+      const response = await axiosInstance.post(`${apiUrl}/auth/login`, {
         username,
         password
       });
@@ -45,11 +43,12 @@ const actions = {
       commit('SET_LOADING', false);
     }
   },
-  async register({ commit }, { username, password }) {
+  async register({ commit, rootGetters }, { username, password }) {
     commit('SET_LOADING', true);
     commit('CLEAR_ERROR');
     try {
-      const response = await axios.post(`${API_URL}/register`, {
+      const apiUrl = rootGetters['app/apiUrl'];
+      const response = await axiosInstance.post(`${apiUrl}/auth/register`, {
         username,
         password
       });
@@ -61,11 +60,12 @@ const actions = {
       commit('SET_LOADING', false);
     }
   },
-  async logout({ commit }) {
+  async logout({ commit, rootGetters }) {
     commit('SET_LOADING', true);
     commit('CLEAR_ERROR');
     try {
-      await axios.post(`${API_URL}/logout`);
+      const apiUrl = rootGetters['app/apiUrl'];
+      await axiosInstance.post(`${apiUrl}/auth/logout`);
       localStorage.removeItem('username');
       localStorage.removeItem('role');
       commit('SET_USER', null);

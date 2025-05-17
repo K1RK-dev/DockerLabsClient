@@ -18,7 +18,7 @@ const routes = [
     path: '/register',
     name: 'Register',
     component: RegisterForm
-  }
+  },
 ];
 
 const router = createRouter({

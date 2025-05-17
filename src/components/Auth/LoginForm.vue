@@ -9,6 +9,7 @@
           <v-card-text>
             <v-text-field v-model="username" label="Username" required></v-text-field>
             <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
+            <v-text-field v-model="apiUrl" label="Server ip" required></v-text-field>
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" @click="login" :loading="isLoading">
@@ -38,6 +39,7 @@ export default {
     const store = useStore();
     const router = useRouter();
 
+    const apiUrl = ref(localStorage.getItem('API_URL') || '');
     const username = ref('');
     const password = ref('');
 
@@ -46,10 +48,14 @@ export default {
 
     const login = async () => {
       try {
+        localStorage.setItem('API_URL', apiUrl.value);
+        store.commit('app/setApiUrl', apiUrl.value);
         await store.dispatch('auth/login', {
           username: username.value,
           password: password.value,
+          apiUrl: apiUrl.value
         });
+
         if (store.getters['auth/isLoggedIn']) {
           router.push('/profile');
         } else {
@@ -65,12 +71,13 @@ export default {
     };
 
     return {
+      apiUrl,
       username,
       password,
       isLoading,
       error,
       login,
-      goToRegister
+      goToRegister,
     };
   },
 };
