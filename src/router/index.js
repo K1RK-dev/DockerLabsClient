@@ -7,7 +7,8 @@ const routes = [
   {
     path: '/profile',
     name: 'Profile',
-    component: Profile
+    component: Profile,
+    meta: { requiresAuth: true }
   },
   {
     path: '/login',
@@ -27,11 +28,23 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if (to.meta.requiresAuth && !localStorage.getItem('username')) {
+  const isLoggedIn = localStorage.getItem('username');
+
+  if (to.path === '/') {
+    if (isLoggedIn) {
+      next('/profile');
+    } else {
+      next('/login');
+    }
+  } else if (to.meta.requiresAuth) {
+    if (!isLoggedIn) {
       next('/login');
     } else {
       next();
     }
-  });
+  } else {
+    next();
+  }
+});
 
 export default router;

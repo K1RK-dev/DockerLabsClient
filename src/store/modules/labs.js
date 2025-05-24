@@ -3,14 +3,16 @@ import axiosInstance from '../../plugins/axios.js';
 const state = {
   labs: [],
   loading: false,
-  error: null
+  error: null,
+  selectedLab: null
 };
 
 const getters = {
   allLabs: (state) => state.labs,
   isLoading: (state) => state.loading,
   hasError: (state) => state.error !== null,
-  errorMessage: (state) => state.error
+  errorMessage: (state) => state.error,
+  selectedLab: (state) => state.selectedLab
 };
 
 const mutations = {
@@ -25,6 +27,9 @@ const mutations = {
   },
   CLEAR_ERROR(state) {
     state.error = null;
+  },
+  SET_SELECTED_LAB(state, lab) {
+    state.selectedLab = lab;
   }
 };
 
@@ -60,7 +65,7 @@ const actions = {
     }
   },
 
-  async deleteLab({ commit, rootGetters }, labId) { 
+  async deleteLab({ commit, rootGetters }, labId) {
     commit('SET_LOADING', true);
     commit('SET_ERROR', null);
     try {
@@ -74,6 +79,14 @@ const actions = {
     } finally {
       commit('SET_LOADING', false);
     }
+  },
+
+  setSelectedLab({ commit }, lab) {
+    commit('SET_SELECTED_LAB', lab);
+  },
+
+  clearSelectedLab({ commit }) {
+    commit('SET_SELECTED_LAB', null);
   }
 };
 

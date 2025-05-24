@@ -9,6 +9,18 @@
           <v-card-text>
             <v-text-field v-model="username" label="Username" required></v-text-field>
             <v-text-field v-model="password" label="Password" type="password" required></v-text-field>
+            <v-text-field v-model="lastname" label="Last name" required></v-text-field>
+            <v-text-field v-model="firstname" label="First name" required></v-text-field>
+            <v-text-field v-model="middlename" label="Middle name" required></v-text-field>
+            <v-select
+              v-model="selectedGroup"
+              :items="groups"
+              item-title="name"
+              item-value="id"
+              return-object
+              label="Select Group"
+              required
+            ></v-select>
           </v-card-text>
           <v-card-actions>
             <v-btn color="primary" @click="register">Submit</v-btn>
@@ -22,7 +34,7 @@
 
 <script>
 import { useStore } from 'vuex';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 export default {
@@ -32,12 +44,33 @@ export default {
 
     const username = ref('');
     const password = ref('');
+    const firstname = ref('');
+    const lastname = ref('');
+    const middlename = ref('');
+    const groups = ref([]);
+    const selectedGroup = ref(null);
+
+    const loadGroups = async () => {
+      try {
+        const response = await store.dispatch('groups/getGroups');
+        groups.value = response.groups;
+        groups.value.forEach(group => {
+          console.log(group.name)
+        });
+      } catch (error) {
+        console.error('Loading groups failed', error);
+      }
+    };
 
     const register = async () => {
       try {
         await store.dispatch('auth/register', {
           username: username.value,
-          password: password.value
+          password: password.value,
+          group: selectedGroup.value,
+          firstname: firstname.value,
+          lastname: lastname.value,
+          middlename: middlename.value
         });
         router.push('/login');
       } catch (error) {
@@ -49,11 +82,21 @@ export default {
       router.push('/login');
     };
 
+    onMounted(() => {
+      loadGroups();
+    });
+
     return {
       username,
       password,
+      firstname,
+      lastname,
+      middlename,
+      groups,
+      selectedGroup,
       register,
-      goToLogin
+      goToLogin,
+      loadGroups
     };
   }
 };

@@ -1,24 +1,40 @@
 <template>
-  <div>
-    <h1>Labs</h1>
-    <div v-if="labsStore.isLoading">Loading...</div>
-    <div v-if="labsStore.hasError" style="color: red;">Error: {{ labsStore.errorMessage }}</div>
-
-    <ul>
-      <li v-for="lab in labs" :key="lab.id">
-        {{ lab.title }} - {{ lab.description }}
-      </li>
-    </ul>
-  </div>
+  <v-card class="labs-container">
+    <v-card-title class="headline">
+      Лабораторные работы
+    </v-card-title>
+    <v-card-text>
+      <v-expansion-panels>
+        <v-expansion-panel
+          v-for="lab in labs"
+          :key="lab.id"
+        >
+          <v-expansion-panel-title>
+            {{ lab.title }}
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <Lab :lab="lab" />
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
 import { useStore } from 'vuex';
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, ref } from 'vue';
+import LabNode from './LabNode.vue';
+import Lab from './Lab.vue';
 
 export default {
+  components: {
+    LabNode,
+    Lab
+  },
   setup() {
     const store = useStore();
+    const selectedLabId = ref(null);
 
     onMounted(() => {
       store.dispatch('labs/getLabs');
@@ -31,10 +47,34 @@ export default {
       errorMessage: computed(() => store.getters['labs/errorMessage']),
     };
 
+    const labs = computed(() => labsStore.labs.value);
+    const selectedLab = computed(() => {
+      if (selectedLabId.value) {
+        return labs.value.find(lab => lab.id === selectedLabId.value);
+      }
+      return null;
+    });
+
+    const openLab = (labId) => {
+      selectedLabId.value = labId;
+    };
+
     return {
       labsStore,
-      labs: computed(() => labsStore.labs.value),
+      labs,
+      selectedLab,
+      openLab,
     };
   }
 };
 </script>
+
+<style scoped>
+.labs-container {
+  margin: 20px auto;
+}
+
+.headline {
+  text-align: center;
+}
+</style>

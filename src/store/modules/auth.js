@@ -43,14 +43,25 @@ const actions = {
       commit('SET_LOADING', false);
     }
   },
-  async register({ commit, rootGetters }, { username, password }) {
+  async register({ commit, rootGetters }, {
+     username, 
+     password,
+     group, 
+     firstname, 
+     lastname, 
+     middlename 
+    }) {
     commit('SET_LOADING', true);
     commit('CLEAR_ERROR');
     try {
       const apiUrl = rootGetters['app/apiUrl'];
       const response = await axiosInstance.post(`${apiUrl}/auth/register`, {
         username,
-        password
+        password,
+        group,
+        firstname,
+        lastname,
+        middlename
       });
       return response.data;
     } catch (error) {
