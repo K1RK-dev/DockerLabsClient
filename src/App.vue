@@ -7,6 +7,10 @@
 </template>
 
 <script>
+import store from './store';
 export default {
+  created() {
+    store.dispatch('auth/fetchUser');
+  }
 };
 </script>

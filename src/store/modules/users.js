@@ -14,18 +14,15 @@ const getters = {
 };
 
 const mutations = {
-  SET_STUDENTS(state, students) {
-    state.students = students;
-  },
   SET_LOADING(state, loading) {
     state.loading = loading;
   },
   SET_ERROR(state, error) {
     state.error = error;
   },
-  CLEAR_ERROR(state) {
-    state.error = null;
-  },
+  SET_STUDENTS(state, students) {
+    state.students = students;
+  }
 };
 
 const actions = {
@@ -45,7 +42,6 @@ const actions = {
         last_name: student.last_name,
         middle_name: student.middle_name
       }));
-      console.log(students);
       commit('SET_STUDENTS', students);
       return response.data;
     } catch (error) {

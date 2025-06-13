@@ -4,6 +4,7 @@
       <v-toolbar :elevation="0" class="minimal-toolbar">
         <div class="logo">DockerLabs</div>
         <div class="vertical-line"></div>
+
         <v-btn
           text
           @click="activeModule = 'labs'"
@@ -12,6 +13,7 @@
         >
           Labs
         </v-btn>
+
         <v-btn
           text
           @click="activeModule = 'students'"
@@ -20,14 +22,7 @@
         >
           Students
         </v-btn>
-        <v-btn
-          text
-          @click="activeModule = 'settings'"
-          :class="{ 'module-active': activeModule === 'settings' }"
-          class="module-button"
-        >
-          Settings
-        </v-btn>
+
         <v-btn
           text
           @click="activeModule = 'images'"
@@ -36,7 +31,18 @@
         >
           Images
         </v-btn>
+
         <v-spacer></v-spacer>
+
+        <v-btn
+          text
+          @click="activeModule = 'settings'"
+          :class="{ 'module-active': activeModule === 'settings' }"
+          class="module-button"
+        >
+          Settings
+        </v-btn>
+
         <v-menu offset-y>
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" class="user-button">
@@ -58,10 +64,14 @@
 
     <v-main class="docker-main fill-height">
       <v-container fluid>
-        <Labs v-if="activeModule === 'labs'" />
-        <Settings v-if="activeModule === 'settings'" />
-        <Students v-if="activeModule === 'students'" />
-        <Images v-if="activeModule === 'images'" />
+        <v-card class="module-card">
+          <v-card-text>
+            <Labs v-if="activeModule === 'labs'" />
+            <Settings v-if="activeModule === 'settings'" />
+            <Students v-if="activeModule === 'students'" />
+            <Images v-if="activeModule === 'images'" />
+          </v-card-text>
+        </v-card>
       </v-container>
     </v-main>
   </v-app>
@@ -134,6 +144,8 @@ export default {
 .module-button {
   color: rgba(255, 255, 255, 0.7) !important;
   transition: color 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .module-active {
@@ -166,7 +178,16 @@ export default {
   background-color: transparent;
 }
 
-.v-main {
-  padding: 50px;
+/* Стиль для карточки модуля */
+.module-card {
+  max-width: 100%; /* Занимает большую часть экрана */
+  margin: 20px auto; /* Центрирование по горизонтали и небольшой отступ сверху */
+  border-radius: 10px; /* Скругленные углы */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Небольшая тень */
+}
+
+/* Стиль для текста внутри карточки */
+.module-card-text {
+  padding: 20px; /* Отступы внутри карточки */
 }
 </style>

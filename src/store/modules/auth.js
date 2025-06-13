@@ -12,6 +12,10 @@ const mutations = {
     state.user = user;
     state.isLoggedIn = !!user;
   },
+  CLEAR_USER(state){
+    state.user = null,
+    state.isLoggedIn = false;
+  },
   SET_LOADING(state, loading) {
     state.loading = loading;
   },
@@ -86,11 +90,27 @@ const actions = {
     } finally {
       commit('SET_LOADING', false);
     }
+  },
+  async fetchUser({ commit, rootGetters }) {
+    commit('SET_LOADING', true);
+    commit('CLEAR_ERROR');
+    try {
+        const apiUrl = rootGetters['app/apiUrl'];
+        const response = await axiosInstance.get(`${apiUrl}/auth/userInfo`);
+        const user = response.data;
+        console.log(user);
+        commit('SET_USER', user);
+    } catch (error) {
+        commit('CLEAR_USER');
+    } finally {
+        commit('SET_LOADING', false);
+    }
   }
 };
 
 const getters = {
   user: state => state.user,
+  userRole: state => state.user.role,
   isLoggedIn: state => state.isLoggedIn,
   isLoading: state => state.loading,
   error: state => state.error

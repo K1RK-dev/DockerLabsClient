@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Profile from '../components/Profile/Profile.vue';
 import LoginForm from '../components/Auth/LoginForm.vue';
 import RegisterForm from '../components/Auth/RegisterForm.vue';
+import store from '../store/index.js'
 
 const routes = [
   {
@@ -27,8 +28,17 @@ const router = createRouter({
   routes
 });
 
-router.beforeEach((to, from, next) => {
-  const isLoggedIn = localStorage.getItem('username');
+router.beforeEach(async (to, from, next) => {
+  if (store.getters['auth/user'] === null) {
+    try {
+      await store.dispatch('auth/fetchUser');
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      next('/login');
+      return;
+    }
+  }
+  const isLoggedIn = store.getters['auth/isLoggedIn'];
 
   if (to.path === '/') {
     if (isLoggedIn) {
@@ -36,13 +46,15 @@ router.beforeEach((to, from, next) => {
     } else {
       next('/login');
     }
-  } else if (to.meta.requiresAuth) {
+  } 
+  else if (to.meta.requiresAuth) {
     if (!isLoggedIn) {
       next('/login');
     } else {
       next();
     }
-  } else {
+  } 
+  else {
     next();
   }
 });
